@@ -1,0 +1,4 @@
+---
+workdir: "/home/{{ ansible_user }}/jenkins-arm-builder"
+clonedir: jenkins-docker
+docker_namespace: gfouquet

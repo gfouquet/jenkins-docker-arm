@@ -1,0 +1,52 @@
+---
+- apt:
+    name: git
+    state: present
+    update_cache: yes
+    autoclean: yes
+  become: yes
+
+- file:
+    path: "{{ workdir }}"
+    state: directory
+
+- file:
+    path: "{{ workdir }}/etc"
+    state: directory
+
+- template:
+    src: "build.j2"
+    dest: "{{ workdir }}/build"
+    mode: 0755
+  tags:
+    - republish
+
+- template:
+    src: "publish-raspbian.j2"
+    dest: "{{ workdir }}/etc/publish-raspbian"
+    mode: 0755
+  tags:
+    - republish
+
+- copy:
+    src: "{{ role_path }}/files/Dockerfile-raspbian"
+    dest: "{{ workdir }}/etc/Dockerfile-raspbian"
+  tags:
+    - republish
+
+- git:
+    repo: "https://github.com/jenkinsci/docker.git"
+    dest: "{{ workdir }}/{{ clonedir }}"
+    depth: 10
+
+- name: Cron the build
+  cron:
+    hour: "*/3"
+    minute: 0
+    name: jenkins-build
+    job: "{{ workdir }}/build"
+    user: "{{ ansible_user }}"
+    state: present
+
+# logger stdout du shell
+# logrotate

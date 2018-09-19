@@ -1,0 +1,13 @@
+#! /bin/bash
+
+readonly HERE=$(cd "$(dirname $0)" && pwd)
+
+cd "${HERE}"/{{ clonedir }}
+
+git fetch
+git reset --hard
+git checkout origin/master
+
+cp "${HERE}"/etc/* .
+
+./publish-raspbian --variant raspbian
